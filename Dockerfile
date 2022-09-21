@@ -9,18 +9,18 @@ FROM ubuntu:20.04
 
 RUN apt-get update && apt-get upgrade -y \
  && DEBIAN_FRONTEND=noninteractive apt-get install -y \
-      libapache2-mod-php7.4 \
+      libapache2-mod-php8.1 \
       # Used by drush to create/drop DBs on fresh install
       mysql-client \
-      php7.4 \
-      php7.4-cli \
-      php7.4-gd \
-      php7.4-json \
-      php7.4-mbstring \
-      php7.4-mysql \
-      php7.4-opcache \
-      php7.4-xml \
-      php7.4-xmlrpc \
+      php8.1 \
+      php8.1-cli \
+      php8.1-gd \
+      php8.1-json \
+      php8.1-mbstring \
+      php8.1-mysql \
+      php8.1-opcache \
+      php8.1-xml \
+      php8.1-xmlrpc \
       php-igbinary \
       php-memcached \
       php-zip \
@@ -60,14 +60,14 @@ RUN { \
     echo 'opcache.revalidate_freq=60'; \
     echo 'opcache.fast_shutdown=1'; \
     echo 'opcache.enable_cli=1'; \
-	} > /etc/php/7.4/apache2/conf.d/opcache-recommended.ini
+	} > /etc/php/8.1/apache2/conf.d/opcache-recommended.ini
 
 RUN { \
     echo 'expose_php=Off'; \
     echo 'memory_limit=${PHP_MEMORY_LIMIT}'; \
     echo 'post_max_size=10M'; \
     echo 'upload_max_filesize = 10M'; \
-	} > /etc/php/7.4/apache2/conf.d/php-defaults.ini
+	} > /etc/php/8.1/apache2/conf.d/php-defaults.ini
 
 RUN { \
 		echo 'RemoteIPHeader X-Real-IP'; \
