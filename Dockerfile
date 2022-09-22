@@ -6,21 +6,25 @@ FROM ubuntu:20.04
 #COPY --from=ca-certificates /usr/local/share/ca-certificates/ /usr/local/share/ca-certificates/
 # We don't have to run 'apt update' twice
 #COPY --from=ca-certificates /var/lib/apt/lists/ /var/lib/apt/lists/
+RUN apt-get update \
+ && apt-get install software-properties-common -y \
+ && add-apt-repository ppa:ondrej/php -y \
+ && add-apt-repository ppa:ondrej/apache2 -y
 
 RUN apt-get update && apt-get upgrade -y \
  && DEBIAN_FRONTEND=noninteractive apt-get install -y \
-      libapache2-mod-php7.4 \
+      libapache2-mod-php8.1 \
       # Used by drush to create/drop DBs on fresh install
       mysql-client \
-      php7.4 \
-      php7.4-cli \
-      php7.4-gd \
-      php7.4-json \
-      php7.4-mbstring \
-      php7.4-mysql \
-      php7.4-opcache \
-      php7.4-xml \
-      php7.4-xmlrpc \
+      php8.1 \
+      php-cli \
+      php-gd \
+      php-json \
+      php-mbstring \
+      php-mysql \
+      php8.1-opcache \
+      php-xml \
+      php-xmlrpc \
       php-igbinary \
       php-memcached \
       php-zip \
@@ -32,7 +36,13 @@ RUN a2enmod rewrite && a2enmod remoteip
 RUN chown -R www-data:www-data /var/log/apache2 /run/apache2
 
 # Apache can't listen on 80 when not starting as root
-RUN sed -i 's/^Listen 80$/#Listen 80/' /etc/apache2/ports.conf
+RUN sed -i 's/^Listen 80$/Listen 8080/' /etc/apache2/ports.conf
+
+# Set ServerName
+RUN echo 'ServerName localhost' >> /etc/apache2/apache2.conf
+
+# Set port
+RUN sed -i 's/<VirtualHost *:80>/<VirtualHost *:8080>/' /etc/apache2/sites-enabled/000-default.conf
 
 COPY entrypoint.sh /usr/local/bin/entrypoint.sh
 RUN chmod 755 /usr/local/bin/entrypoint.sh
@@ -60,18 +70,20 @@ RUN { \
     echo 'opcache.revalidate_freq=60'; \
     echo 'opcache.fast_shutdown=1'; \
     echo 'opcache.enable_cli=1'; \
-	} > /etc/php/7.4/apache2/conf.d/opcache-recommended.ini
+	} > /etc/php/8.1/apache2/conf.d/opcache-recommended.ini
 
 RUN { \
     echo 'expose_php=Off'; \
     echo 'memory_limit=${PHP_MEMORY_LIMIT}'; \
     echo 'post_max_size=10M'; \
     echo 'upload_max_filesize = 10M'; \
-	} > /etc/php/7.4/apache2/conf.d/php-defaults.ini
+	} > /etc/php/8.1/apache2/conf.d/php-defaults.ini
 
 RUN { \
 		echo 'RemoteIPHeader X-Real-IP'; \
 	} > /etc/apache2/mods-enabled/remoteip.conf
+
+EXPOSE 8080
 
 USER www-data
 
