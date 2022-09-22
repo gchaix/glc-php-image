@@ -36,13 +36,7 @@ RUN a2enmod rewrite && a2enmod remoteip
 RUN chown -R www-data:www-data /var/log/apache2 /run/apache2
 
 # Apache can't listen on 80 when not starting as root
-RUN sed -i 's/^Listen 80$/Listen 8080/' /etc/apache2/ports.conf
-
-# Set ServerName
-RUN echo 'ServerName localhost' >> /etc/apache2/apache2.conf
-
-# Set port
-RUN sed -i 's/<VirtualHost *:80>/<VirtualHost *:8080>/' /etc/apache2/sites-enabled/000-default.conf
+RUN sed -i 's/^Listen 80$/#Listen 80/' /etc/apache2/ports.conf
 
 COPY entrypoint.sh /usr/local/bin/entrypoint.sh
 RUN chmod 755 /usr/local/bin/entrypoint.sh
@@ -82,8 +76,6 @@ RUN { \
 RUN { \
 		echo 'RemoteIPHeader X-Real-IP'; \
 	} > /etc/apache2/mods-enabled/remoteip.conf
-
-EXPOSE 8080
 
 USER www-data
 
